@@ -13,12 +13,12 @@ enum LoginError: Error {
 }
 
 protocol LoginModelProtocol {
-    func requestLogin() async -> Single<Void>
+    func requestLogin() -> Single<Void>
 }
 
 final class LoginModel: LoginModelProtocol {
 
-    func requestLogin() async -> Single<Void> {
+    func requestLogin() -> Single<Void> {
         return Single<Void>.create { event in
             event(.success(()))
             return Disposables.create()
