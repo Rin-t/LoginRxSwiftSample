@@ -21,6 +21,7 @@
 		248079CA294A0FE900084A59 /* RxRelay in Frameworks */ = {isa = PBXBuildFile; productRef = 248079C9294A0FE900084A59 /* RxRelay */; };
 		248079CC294A0FE900084A59 /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 248079CB294A0FE900084A59 /* RxSwift */; };
 		248079CE294B4EA300084A59 /* LoginModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 248079CD294B4EA300084A59 /* LoginModel.swift */; };
+		24DFB2FB295483BD004C754F /* Validator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24DFB2FA295483BD004C754F /* Validator.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,6 +57,7 @@
 		248079AD294A0C7B00084A59 /* LoginRxSwiftSampleUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginRxSwiftSampleUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		248079BA294A0C9500084A59 /* ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModel.swift; sourceTree = "<group>"; };
 		248079CD294B4EA300084A59 /* LoginModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginModel.swift; sourceTree = "<group>"; };
+		24DFB2FA295483BD004C754F /* Validator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Validator.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -114,6 +116,7 @@
 				248079CD294B4EA300084A59 /* LoginModel.swift */,
 				248079BA294A0C9500084A59 /* ViewModel.swift */,
 				2480798E294A0C7800084A59 /* ViewController.swift */,
+				24DFB2FA295483BD004C754F /* Validator.swift */,
 				24807990294A0C7800084A59 /* Main.storyboard */,
 				24807993294A0C7A00084A59 /* Assets.xcassets */,
 				24807995294A0C7A00084A59 /* LaunchScreen.storyboard */,
@@ -278,6 +281,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				24DFB2FB295483BD004C754F /* Validator.swift in Sources */,
 				2480798F294A0C7800084A59 /* ViewController.swift in Sources */,
 				2480798B294A0C7800084A59 /* AppDelegate.swift in Sources */,
 				248079BB294A0C9500084A59 /* ViewModel.swift in Sources */,
