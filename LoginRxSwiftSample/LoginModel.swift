@@ -21,6 +21,7 @@ final class LoginModel: LoginModelProtocol {
     func requestLogin() -> Single<Void> {
         return Single<Void>.create { event in
             event(.success(()))
+            //event(.failure(LoginError.connectionError))
             return Disposables.create()
         }
     }
