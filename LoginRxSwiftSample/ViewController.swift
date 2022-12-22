@@ -9,27 +9,30 @@ import UIKit
 import RxSwift
 import RxCocoa
 
-class ViewController: UIViewController {
-    
+final class ViewController: UIViewController {
 
-    @IBOutlet weak var emailTextField: UITextField!
-    @IBOutlet weak var passwordTextField: UITextField!
-    @IBOutlet weak var confirmationPasswordTextField: UITextField!
-    @IBOutlet weak var loginButton: UIButton!
-    
-    @IBOutlet weak var loginStatusLabel: UILabel!
+    // Outlets
+    @IBOutlet private weak var emailTextField: UITextField!
+    @IBOutlet private weak var passwordTextField: UITextField!
+    @IBOutlet private weak var confirmationPasswordTextField: UITextField!
+    @IBOutlet private weak var loginButton: UIButton!
+    @IBOutlet private weak var loginStatusLabel: UILabel!
+
+
+    // Properties
     private let dispodeBag = DisposeBag()
     private let viewModel = ViewModel(model: LoginModel())
-    
+
+
+    // LifeCycles
     override func viewDidLoad() {
         super.viewDidLoad()
        
         emailTextField.rx.text
             .map{ $0 ?? "" }
             .subscribe(onNext: { [weak self] text in
-                print(text)
                 guard let strongSelf = self else { return }
-                strongSelf.viewModel.input.emailTextField.accept(text)
+                strongSelf.viewModel.input.email.accept(text)
             })
             .disposed(by: dispodeBag)
         
@@ -37,7 +40,7 @@ class ViewController: UIViewController {
             .map{ $0 ?? "" }
             .subscribe(onNext: { [weak self] text in
                 guard let strongSelf = self else { return }
-                strongSelf.viewModel.input.passwordTextField.accept(text)
+                strongSelf.viewModel.input.password.accept(text)
             })
             .disposed(by: dispodeBag)
         
@@ -45,7 +48,7 @@ class ViewController: UIViewController {
             .map{ $0 ?? "" }
             .subscribe(onNext: { [weak self] text in
                 guard let strongSelf = self else { return }
-                strongSelf.viewModel.input.confirmationPasswordTextField.accept(text)
+                strongSelf.viewModel.input.confirmationPassword.accept(text)
             })
             .disposed(by: dispodeBag)
         
@@ -56,22 +59,19 @@ class ViewController: UIViewController {
             }
             .disposed(by: dispodeBag)
         
-        viewModel.output.isValidate
+        viewModel.output.isValidateObservable
             .subscribe(onNext: { [weak self] isValidate in
                 guard let strongSelf = self else { return }
                 strongSelf.loginButton.isHidden = !isValidate
             })
             .disposed(by: dispodeBag)
         
-        viewModel.output.showAlert
+        viewModel.output.showAlertObservable
             .subscribe(onNext: { [weak self] message in
                 guard let strongSelf = self else { return }
                 strongSelf.loginStatusLabel.text = message
             })
             .disposed(by: dispodeBag)
-            
     }
-
-
 }
 
