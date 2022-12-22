@@ -10,15 +10,15 @@ import RxRelay
 import RxSwift
 
 protocol ViewModelInput {
-    var passwordTextField: PublishRelay<String> { get }
-    var confirmationPasswordTextField: PublishRelay<String> { get }
-    var emailTextField: PublishRelay<String> { get }
+    var password: PublishRelay<String> { get }
+    var confirmationPassword: PublishRelay<String> { get }
+    var email: PublishRelay<String> { get }
     var tappedRegisterButton: PublishRelay<Void> { get }
 }
 
 protocol ViewModelOutput {
-    var isValidate: Observable<Bool> { get }
-    var showAlert: Observable<String> { get }
+    var isValidateObservable: Observable<Bool> { get }
+    var showAlertObservable: Observable<String> { get }
 }
 
 protocol ViewModelType {
@@ -27,68 +27,68 @@ protocol ViewModelType {
 }
 
 final class ViewModel: ViewModelInput, ViewModelOutput {
-    
+
+    // Inputs
+    let password = PublishRelay<String>()
+    let confirmationPassword = PublishRelay<String>()
+    let email = PublishRelay<String>()
+    let tappedRegisterButton = PublishRelay<Void>()
     
 
-    //MARK: - inputs
-    var passwordTextField = PublishRelay<String>()
-    var confirmationPasswordTextField = PublishRelay<String>()
-    var emailTextField = PublishRelay<String>()
-    var tappedRegisterButton = PublishRelay<Void>()
-    
+    // Outputs
+    private let isValidate = BehaviorRelay<Bool>(value: false)
+    private let alertMessage = PublishRelay<String>()
 
-    //MARK: - outputs
-    private var isValidateRelay = BehaviorRelay<Bool>(value: false)
-    private var alertMessage = PublishRelay<String>()
-    
-    var isValidate: Observable<Bool> {
-        return isValidateRelay.asObservable()
+
+    // Properties
+    var isValidateObservable: Observable<Bool> {
+        return isValidate.asObservable()
     }
-    var showAlert: Observable<String> {
+    var showAlertObservable: Observable<String> {
         return alertMessage.asObservable()
     }
     
     private let loginModel: LoginModelProtocol
     private let disposeBag = DisposeBag()
 
+
+    // Initializer
     init(model: LoginModelProtocol) {
         loginModel = model
         
-        // ログインボタンの活性、非活性を判定。判定処理はModel側に持たせるべきか
         Observable
-            .combineLatest(passwordTextField.asObservable(),
-                           confirmationPasswordTextField.asObservable(),
-                           emailTextField.asObservable())
+            .combineLatest(password.asObservable(),
+                           confirmationPassword.asObservable(),
+                           email.asObservable())
             .map { passWord, confirmPassWord, email in
-                passWord.isPasswordValidate()
-                && passWord == confirmPassWord
-                && email.isEmailValidate()
+                Validator.isLoginEnabled(email: email, password: passWord, confirmPassword: confirmPassWord)
             }
-            .bind(to: isValidateRelay)
+            .bind(to: isValidate)
             .disposed(by: disposeBag)
-      
+        
         tappedRegisterButton
             .subscribe { [weak self] _ in
                 guard let strongSelf = self else { return }
                 strongSelf.loginModel.requestLogin()
                     .subscribe { event in
-                        switch event {
-                        case .success:
-                            let message = "ログイン成功"
-                            strongSelf.alertMessage.accept(message)
-                        case .failure(let error):
-                            let error = error as! LoginError
-                            strongSelf.alertMessage.accept(error.message)
+                        DispatchQueue.main.async {
+                            switch event {
+                            case .success:
+                                let message = "ログイン成功"
+                                strongSelf.alertMessage.accept(message)
+                            case .failure(let error):
+                                let error = error as! LoginError
+                                strongSelf.alertMessage.accept(error.message)
+                            }
                         }
                     }
                     .disposed(by: strongSelf.disposeBag)
-    
             }
             .disposed(by: disposeBag)
-
     }
 }
 
+//MARK: - ViewModel Extension
 extension ViewModel: ViewModelType {
 
     var input: ViewModelInput { return self }
@@ -96,17 +96,7 @@ extension ViewModel: ViewModelType {
 
 }
 
-private extension String {
-
-    func isEmailValidate() -> Bool {
-        contains("hotate")
-    }
-
-    func isPasswordValidate() -> Bool {
-        count > 4
-    }
-}
-
+//MARK: - LoginError Extension
 private extension LoginError {
     
     var message: String {
