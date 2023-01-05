@@ -27,7 +27,10 @@ final class ViewController: UIViewController {
     // LifeCycles
     override func viewDidLoad() {
         super.viewDidLoad()
-       
+        setupBindings()
+    }
+
+    private func setupBindings() {
         emailTextField.rx.text
             .map{ $0 ?? "" }
             .subscribe(onNext: { [weak self] text in
@@ -35,7 +38,7 @@ final class ViewController: UIViewController {
                 strongSelf.viewModel.input.email.accept(text)
             })
             .disposed(by: dispodeBag)
-        
+
         passwordTextField.rx.text
             .map{ $0 ?? "" }
             .subscribe(onNext: { [weak self] text in
@@ -43,7 +46,7 @@ final class ViewController: UIViewController {
                 strongSelf.viewModel.input.password.accept(text)
             })
             .disposed(by: dispodeBag)
-        
+
         confirmationPasswordTextField.rx.text
             .map{ $0 ?? "" }
             .subscribe(onNext: { [weak self] text in
@@ -51,21 +54,22 @@ final class ViewController: UIViewController {
                 strongSelf.viewModel.input.confirmationPassword.accept(text)
             })
             .disposed(by: dispodeBag)
-        
+
+        #warning("①ログインボタンのタップイベントの通知(View→ViewModel)について")
         loginButton.rx.tap
             .subscribe { [weak self] _ in
                 guard let strongSelf = self else { return }
                 strongSelf.viewModel.input.tappedRegisterButton.accept(())
             }
             .disposed(by: dispodeBag)
-        
+
         viewModel.output.isValidateObservable
             .subscribe(onNext: { [weak self] isValidate in
                 guard let strongSelf = self else { return }
                 strongSelf.loginButton.isHidden = !isValidate
             })
             .disposed(by: dispodeBag)
-        
+
         viewModel.output.showAlertObservable
             .subscribe(onNext: { [weak self] message in
                 guard let strongSelf = self else { return }

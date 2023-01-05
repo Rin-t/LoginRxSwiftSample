@@ -28,6 +28,8 @@ protocol ViewModelType {
 
 final class ViewModel: ViewModelInput, ViewModelOutput {
 
+
+    #warning("②プロパティの命名(disposeBagまで)")
     // Inputs
     let password = PublishRelay<String>()
     let confirmationPassword = PublishRelay<String>()
@@ -41,6 +43,7 @@ final class ViewModel: ViewModelInput, ViewModelOutput {
 
 
     // Properties
+    #warning("③Driverの使用について")
     var isValidateObservable: Observable<Bool> {
         return isValidate.asObservable()
     }
@@ -50,6 +53,7 @@ final class ViewModel: ViewModelInput, ViewModelOutput {
     
     private let loginModel: LoginModelProtocol
     private let disposeBag = DisposeBag()
+
 
 
     // Initializer
@@ -65,7 +69,8 @@ final class ViewModel: ViewModelInput, ViewModelOutput {
             }
             .bind(to: isValidate)
             .disposed(by: disposeBag)
-        
+
+        #warning("①ログインボタンのタップイベントの通知(View→ViewModel)について")
         tappedRegisterButton
             .subscribe { [weak self] _ in
                 guard let strongSelf = self else { return }
