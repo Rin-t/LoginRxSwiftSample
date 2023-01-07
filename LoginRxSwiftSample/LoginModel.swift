@@ -12,18 +12,8 @@ enum LoginError: Error {
     case connectionError
 }
 
-protocol LoginModelProtocol {
-    func requestLogin() -> Single<Void>
-}
-
-final class LoginModel: LoginModelProtocol {
-
-    func requestLogin() -> Single<Void> {
-        return Single<Void>.create { event in
-            //　ここで通信を行う。
-            event(.success(()))
-            //event(.failure(LoginError.connectionError))
-            return Disposables.create()
-        }
+final class LoginModel {
+    func requestLoginResult() -> Result<Void, Error> {
+        return .success(Void())
     }
 }

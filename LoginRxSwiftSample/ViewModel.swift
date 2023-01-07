@@ -6,104 +6,80 @@
 //
 
 import Foundation
-import RxRelay
 import RxSwift
+import RxCocoa
 
-protocol ViewModelInput {
-    var password: PublishRelay<String> { get }
-    var confirmationPassword: PublishRelay<String> { get }
-    var email: PublishRelay<String> { get }
-    var tappedRegisterButton: PublishRelay<Void> { get }
-}
-
-protocol ViewModelOutput {
-    var isValidateObservable: Observable<Bool> { get }
-    var showAlertObservable: Observable<String> { get }
-}
-
-protocol ViewModelType {
-    var input: ViewModelInput { get }
-    var output: ViewModelOutput { get }
-}
-
-final class ViewModel: ViewModelInput, ViewModelOutput {
-
-
-    #warning("②プロパティの命名(disposeBagまで)")
-    // Inputs
-    let password = PublishRelay<String>()
-    let confirmationPassword = PublishRelay<String>()
-    let email = PublishRelay<String>()
-    let tappedRegisterButton = PublishRelay<Void>()
+final class ViewModel {
+    struct Input {
+        let passwordRelay: Driver<String>
+        let confirmationPasswordRelay: Driver<String>
+        let emailRelay: Driver<String>
+        let tappedRegisterButtonRelay: Signal<Void>
+    }
     
-
-    // Outputs
-    private let isValidate = BehaviorRelay<Bool>(value: false)
-    private let alertMessage = PublishRelay<String>()
-
+    struct Output {
+        let shouldHiddenLoginButton: Driver<Bool>
+        let showAlert: Signal<String>
+    }
+    
+#warning("②プロパティの命名(disposeBagまで)")
+    private let alertMessageRelay = PublishRelay<String>()
 
     // Properties
-    #warning("③Driverの使用について")
-    var isValidateObservable: Observable<Bool> {
-        return isValidate.asObservable()
-    }
-    var showAlertObservable: Observable<String> {
-        return alertMessage.asObservable()
+#warning("③Driverの使用について")
+    private let loginModel: LoginModel
+    private let disposeBag = DisposeBag()
+    
+    // Initializer
+    init() {
+        loginModel = LoginModel()
     }
     
-    private let loginModel: LoginModelProtocol
-    private let disposeBag = DisposeBag()
-
-
-
-    // Initializer
-    init(model: LoginModelProtocol) {
-        loginModel = model
+    func transform(input: Input) -> Output {
+        let shouledHiddenLoginButtonRelay = BehaviorRelay<Bool>(value: false)
         
         Observable
-            .combineLatest(password.asObservable(),
-                           confirmationPassword.asObservable(),
-                           email.asObservable())
+            .combineLatest(input.passwordRelay.asObservable(),
+                           input.confirmationPasswordRelay.asObservable(),
+                           input.emailRelay.asObservable())
             .map { passWord, confirmPassWord, email in
-                Validator.isLoginEnabled(email: email, password: passWord, confirmPassword: confirmPassWord)
+                Validator.isLoginEnabled(email: email,
+                                         password: passWord,
+                                         confirmPassword: confirmPassWord)
             }
-            .bind(to: isValidate)
-            .disposed(by: disposeBag)
-
-        #warning("①ログインボタンのタップイベントの通知(View→ViewModel)について")
-        tappedRegisterButton
-            .subscribe { [weak self] _ in
-                guard let strongSelf = self else { return }
-                strongSelf.loginModel.requestLogin()
-                    .subscribe { event in
-                        DispatchQueue.main.async {
-                            switch event {
-                            case .success:
-                                let message = "ログイン成功"
-                                strongSelf.alertMessage.accept(message)
-                            case .failure(let error):
-                                let error = error as! LoginError
-                                strongSelf.alertMessage.accept(error.message)
-                            }
-                        }
-                    }
-                    .disposed(by: strongSelf.disposeBag)
+            .map { login in
+                let shouldHiddenloginButton = login ? false : true
+                return shouldHiddenloginButton
             }
+            .bind(to: shouledHiddenLoginButtonRelay)
             .disposed(by: disposeBag)
+        
+        input.tappedRegisterButtonRelay
+            .withUnretained(self)
+            .emit(onNext: { _self, _ in
+                _self.requestLogin()
+            })
+            .disposed(by: disposeBag)
+        
+        return Output(shouldHiddenLoginButton: shouledHiddenLoginButtonRelay.asDriver(),
+                      showAlert: alertMessageRelay.asSignal())
     }
-}
-
-//MARK: - ViewModel Extension
-extension ViewModel: ViewModelType {
-
-    var input: ViewModelInput { return self }
-    var output: ViewModelOutput { return self }
-
+    
+    private func requestLogin() {
+        let login = loginModel.requestLoginResult()
+        switch login {
+        case .success():
+            let message = "ログイン成功"
+            alertMessageRelay.accept(message)
+        case .failure(let error):
+            let error = error as! LoginError
+            alertMessageRelay.accept(error.message)
+        }
+    }
 }
 
 //MARK: - LoginError Extension
 private extension LoginError {
-    
     var message: String {
         switch self {
         case .connectionError: return "ネットワークエラー"
