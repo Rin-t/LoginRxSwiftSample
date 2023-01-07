@@ -8,6 +8,7 @@
 import Foundation
 import RxRelay
 import RxSwift
+import RxCocoa
 
 protocol ViewModelInput {
     var password: PublishRelay<String> { get }
@@ -27,7 +28,17 @@ protocol ViewModelType {
 }
 
 final class ViewModel: ViewModelInput, ViewModelOutput {
-
+    struct Input {
+           let passwordRelay: Driver<String>
+           let confirmationPasswordRelay: Driver<String>
+           let emailRelay: Driver<String>
+           let tappedRegisterButtonRelay: Signal<Void>
+       }
+       
+       struct Output {
+           let shouldHiddenLoginButton: Driver<Bool>
+           let showAlert: Signal<String>
+       }
 
     #warning("②プロパティの命名(disposeBagまで)")
     // Inputs
