@@ -21,7 +21,7 @@ final class ViewController: UIViewController {
     
     // Properties
     private let disposeBag = DisposeBag()
-    private let viewModel = ViewModel(model: LoginModel())
+    private let viewModel = ViewModel()
     
     
     // LifeCycles

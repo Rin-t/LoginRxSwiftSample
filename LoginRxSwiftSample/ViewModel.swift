@@ -23,20 +23,20 @@ final class ViewModel {
     }
     
 #warning("②プロパティの命名(disposeBagまで)")
-    
+    private let alertMessageRelay = PublishRelay<String>()
+
     // Properties
 #warning("③Driverの使用について")
-    private let loginModel: LoginModelProtocol
+    private let loginModel: LoginModel
     private let disposeBag = DisposeBag()
     
     // Initializer
-    init(model: LoginModelProtocol) {
-        loginModel = model
+    init() {
+        loginModel = LoginModel()
     }
     
     func transform(input: Input) -> Output {
         let shouledHiddenLoginButtonRelay = BehaviorRelay<Bool>(value: false)
-        let alertMessageRelay = PublishRelay<String>()
         
         Observable
             .combineLatest(input.passwordRelay.asObservable(),
@@ -57,25 +57,24 @@ final class ViewModel {
         input.tappedRegisterButtonRelay
             .withUnretained(self)
             .emit(onNext: { _self, _ in
-                _self.loginModel.requestLogin()
-                    .subscribe { event in
-                        DispatchQueue.main.async {
-                            switch event {
-                            case .success:
-                                let message = "ログイン成功"
-                                alertMessageRelay.accept(message)
-                            case .failure(let error):
-                                let error = error as! LoginError
-                                alertMessageRelay.accept(error.message)
-                            }
-                        }
-                    }
-                    .disposed(by: _self.disposeBag)
+                _self.requestLogin()
             })
             .disposed(by: disposeBag)
         
         return Output(shouldHiddenLoginButton: shouledHiddenLoginButtonRelay.asDriver(),
                       showAlert: alertMessageRelay.asSignal())
+    }
+    
+    private func requestLogin() {
+        let login = loginModel.requestLoginResult()
+        switch login {
+        case .success():
+            let message = "ログイン成功"
+            alertMessageRelay.accept(message)
+        case .failure(let error):
+            let error = error as! LoginError
+            alertMessageRelay.accept(error.message)
+        }
     }
 }
 
