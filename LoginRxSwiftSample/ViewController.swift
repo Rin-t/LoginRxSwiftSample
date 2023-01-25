@@ -21,8 +21,18 @@ final class ViewController: UIViewController {
 
     // Properties
     private let disposeBag = DisposeBag()
-    private let viewModel = ViewModel()
+    private let viewModel: ViewModel
 
+    init() {
+        viewModel = ViewModel(input: .init(password: passwordTextField.rx.text.orEmpty.asObservable(),
+                                                confirmationPassword: confirmationPasswordTextField.rx.text.orEmpty.asObservable(),
+                                                email: emailTextField.rx.text.orEmpty.asObservable()))
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     // LifeCycles
     override func viewDidLoad() {
@@ -31,10 +41,6 @@ final class ViewController: UIViewController {
     }
 
     private func setupBindings() {
-        viewModel.setupBindings(input: .init(password: passwordTextField.rx.text.orEmpty.asObservable(),
-                                                       confirmationPassword: confirmationPasswordTextField.rx.text.orEmpty.asObservable(),
-                                                       email: emailTextField.rx.text.orEmpty.asObservable()))
-
         viewModel.viewData
             .subscribe(onNext: { [weak self] viewData in
                 self?.loginButton.isHidden = viewData.isLoginButtonHidden
