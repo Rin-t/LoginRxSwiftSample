@@ -39,6 +39,10 @@ final class ViewModel {
     private let useCase = LoginUseCase(repository: LoginRepository())
     private let disposeBag = DisposeBag()
 
+    init(input: Input) {
+        setupBindings(input: Input)
+    }
+
     func setupBindings(input: Input) {
 
         Observable
