@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		24085114297D40CF00092066 /* LoginRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24085113297D40CF00092066 /* LoginRepository.swift */; };
 		2480798B294A0C7800084A59 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2480798A294A0C7800084A59 /* AppDelegate.swift */; };
 		2480798D294A0C7800084A59 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2480798C294A0C7800084A59 /* SceneDelegate.swift */; };
 		2480798F294A0C7800084A59 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2480798E294A0C7800084A59 /* ViewController.swift */; };
@@ -20,7 +21,7 @@
 		248079C8294A0FE900084A59 /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = 248079C7294A0FE900084A59 /* RxCocoa */; };
 		248079CA294A0FE900084A59 /* RxRelay in Frameworks */ = {isa = PBXBuildFile; productRef = 248079C9294A0FE900084A59 /* RxRelay */; };
 		248079CC294A0FE900084A59 /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 248079CB294A0FE900084A59 /* RxSwift */; };
-		248079CE294B4EA300084A59 /* LoginModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 248079CD294B4EA300084A59 /* LoginModel.swift */; };
+		248079CE294B4EA300084A59 /* LoginUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 248079CD294B4EA300084A59 /* LoginUseCase.swift */; };
 		24DFB2FB295483BD004C754F /* Validator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24DFB2FA295483BD004C754F /* Validator.swift */; };
 /* End PBXBuildFile section */
 
@@ -42,6 +43,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		24085113297D40CF00092066 /* LoginRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginRepository.swift; sourceTree = "<group>"; };
 		24807987294A0C7800084A59 /* LoginRxSwiftSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LoginRxSwiftSample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2480798A294A0C7800084A59 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2480798C294A0C7800084A59 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -56,7 +58,7 @@
 		248079AB294A0C7B00084A59 /* LoginRxSwiftSampleUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginRxSwiftSampleUITests.swift; sourceTree = "<group>"; };
 		248079AD294A0C7B00084A59 /* LoginRxSwiftSampleUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginRxSwiftSampleUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		248079BA294A0C9500084A59 /* ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModel.swift; sourceTree = "<group>"; };
-		248079CD294B4EA300084A59 /* LoginModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginModel.swift; sourceTree = "<group>"; };
+		248079CD294B4EA300084A59 /* LoginUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginUseCase.swift; sourceTree = "<group>"; };
 		24DFB2FA295483BD004C754F /* Validator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Validator.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -113,7 +115,8 @@
 			children = (
 				2480798A294A0C7800084A59 /* AppDelegate.swift */,
 				2480798C294A0C7800084A59 /* SceneDelegate.swift */,
-				248079CD294B4EA300084A59 /* LoginModel.swift */,
+				24085113297D40CF00092066 /* LoginRepository.swift */,
+				248079CD294B4EA300084A59 /* LoginUseCase.swift */,
 				248079BA294A0C9500084A59 /* ViewModel.swift */,
 				2480798E294A0C7800084A59 /* ViewController.swift */,
 				24DFB2FA295483BD004C754F /* Validator.swift */,
@@ -284,9 +287,10 @@
 				24DFB2FB295483BD004C754F /* Validator.swift in Sources */,
 				2480798F294A0C7800084A59 /* ViewController.swift in Sources */,
 				2480798B294A0C7800084A59 /* AppDelegate.swift in Sources */,
+				24085114297D40CF00092066 /* LoginRepository.swift in Sources */,
 				248079BB294A0C9500084A59 /* ViewModel.swift in Sources */,
 				2480798D294A0C7800084A59 /* SceneDelegate.swift in Sources */,
-				248079CE294B4EA300084A59 /* LoginModel.swift in Sources */,
+				248079CE294B4EA300084A59 /* LoginUseCase.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
