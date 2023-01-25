@@ -8,105 +8,67 @@
 import Foundation
 import RxRelay
 import RxSwift
+import RxCocoa
 
-protocol ViewModelInput {
-    var password: PublishRelay<String> { get }
-    var confirmationPassword: PublishRelay<String> { get }
-    var email: PublishRelay<String> { get }
-    var tappedRegisterButton: PublishRelay<Void> { get }
-}
+final class ViewModel {
 
-protocol ViewModelOutput {
-    var isValidateObservable: Observable<Bool> { get }
-    var showAlertObservable: Observable<String> { get }
-}
-
-protocol ViewModelType {
-    var input: ViewModelInput { get }
-    var output: ViewModelOutput { get }
-}
-
-final class ViewModel: ViewModelInput, ViewModelOutput {
-
-
-    #warning("②プロパティの命名(disposeBagまで)")
-    // Inputs
-    let password = PublishRelay<String>()
-    let confirmationPassword = PublishRelay<String>()
-    let email = PublishRelay<String>()
-    let tappedRegisterButton = PublishRelay<Void>()
-    
-
-    // Outputs
-    private let isValidate = BehaviorRelay<Bool>(value: false)
-    private let alertMessage = PublishRelay<String>()
-
-
-    // Properties
-    #warning("③Driverの使用について")
-    var isValidateObservable: Observable<Bool> {
-        return isValidate.asObservable()
+    enum Event {
+        case showLoginStatus(String)
     }
-    var showAlertObservable: Observable<String> {
-        return alertMessage.asObservable()
+
+    struct Input {
+        let password: Observable<String>
+        let confirmationPassword: Observable<String>
+        let email: Observable<String>
+    }
+
+    struct ViewData {
+        let isLoginButtonHidden: Bool
+    }
+
+    private let eventRelay = PublishRelay<Event>()
+    var event: Observable<Event> {
+        eventRelay.asObservable()
+    }
+
+    private let viewDataRelay = BehaviorRelay<ViewData>(value: ViewData(isLoginButtonHidden: true))
+    var viewData: Observable<ViewData> {
+        viewDataRelay.asObservable()
     }
     
-    private let loginModel: LoginModelProtocol
+    private let useCase = LoginUseCase(repository: LoginRepository())
     private let disposeBag = DisposeBag()
 
+    func setupBindings(input: Input) {
 
-
-    // Initializer
-    init(model: LoginModelProtocol) {
-        loginModel = model
-        
         Observable
-            .combineLatest(password.asObservable(),
-                           confirmationPassword.asObservable(),
-                           email.asObservable())
-            .map { passWord, confirmPassWord, email in
-                Validator.isLoginEnabled(email: email, password: passWord, confirmPassword: confirmPassWord)
+            .combineLatest(input.email,
+                           input.password,
+                           input.confirmationPassword)
+            .map { email, passWord, confirmPassWord in
+                let isHidden = Validator.isLoginEnabled(email: email,
+                                         password: passWord,
+                                         confirmPassword: confirmPassWord)
+                return !isHidden
             }
-            .bind(to: isValidate)
+            .map { ViewData(isLoginButtonHidden: $0) }
+            .bind(to: viewDataRelay)
             .disposed(by: disposeBag)
 
-        #warning("①ログインボタンのタップイベントの通知(View→ViewModel)について")
-        tappedRegisterButton
-            .subscribe { [weak self] _ in
-                guard let strongSelf = self else { return }
-                strongSelf.loginModel.requestLogin()
-                    .subscribe { event in
-                        DispatchQueue.main.async {
-                            switch event {
-                            case .success:
-                                let message = "ログイン成功"
-                                strongSelf.alertMessage.accept(message)
-                            case .failure(let error):
-                                let error = error as! LoginError
-                                strongSelf.alertMessage.accept(error.message)
-                            }
-                        }
+        Observable
+            .merge([
+                useCase.complete
+                    .map { Event.showLoginStatus("ログインに成功しました") },
+                useCase.error
+                    .map { _ in
+                        Event.showLoginStatus("ログインに失敗しました")
                     }
-                    .disposed(by: strongSelf.disposeBag)
-            }
+            ])
+            .bind(to: eventRelay)
             .disposed(by: disposeBag)
     }
-}
 
-//MARK: - ViewModel Extension
-extension ViewModel: ViewModelType {
-
-    var input: ViewModelInput { return self }
-    var output: ViewModelOutput { return self }
-
-}
-
-//MARK: - LoginError Extension
-private extension LoginError {
-    
-    var message: String {
-        switch self {
-        case .connectionError: return "ネットワークエラー"
-        }
+    func tappedLoginButton() {
+        useCase.requestLogin()
     }
 }
