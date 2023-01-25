@@ -20,8 +20,8 @@ final class ViewController: UIViewController {
 
 
     // Properties
-    private let dispodeBag = DisposeBag()
-    private let viewModel = ViewModel(model: LoginModel())
+    private let disposeBag = DisposeBag()
+    private let viewModel = ViewModel()
 
 
     // LifeCycles
@@ -31,51 +31,31 @@ final class ViewController: UIViewController {
     }
 
     private func setupBindings() {
-        emailTextField.rx.text
-            .map{ $0 ?? "" }
-            .subscribe(onNext: { [weak self] text in
-                guard let strongSelf = self else { return }
-                strongSelf.viewModel.input.email.accept(text)
-            })
-            .disposed(by: dispodeBag)
+        viewModel.setupBindings(input: .init(password: passwordTextField.rx.text.orEmpty.asObservable(),
+                                                       confirmationPassword: confirmationPasswordTextField.rx.text.orEmpty.asObservable(),
+                                                       email: emailTextField.rx.text.orEmpty.asObservable()))
 
-        passwordTextField.rx.text
-            .map{ $0 ?? "" }
-            .subscribe(onNext: { [weak self] text in
-                guard let strongSelf = self else { return }
-                strongSelf.viewModel.input.password.accept(text)
+        viewModel.viewData
+            .subscribe(onNext: { [weak self] viewData in
+                self?.loginButton.isHidden = viewData.isLoginButtonHidden
             })
-            .disposed(by: dispodeBag)
+            .disposed(by: disposeBag)
 
-        confirmationPasswordTextField.rx.text
-            .map{ $0 ?? "" }
-            .subscribe(onNext: { [weak self] text in
-                guard let strongSelf = self else { return }
-                strongSelf.viewModel.input.confirmationPassword.accept(text)
+        viewModel.event
+            .subscribe(onNext: { [weak self] in
+                switch $0 {
+                case .showLoginStatus(let message):
+                    self?.loginStatusLabel.text = message
+                }
             })
-            .disposed(by: dispodeBag)
+            .disposed(by: disposeBag)
 
-        #warning("①ログインボタンのタップイベントの通知(View→ViewModel)について")
         loginButton.rx.tap
-            .subscribe { [weak self] _ in
-                guard let strongSelf = self else { return }
-                strongSelf.viewModel.input.tappedRegisterButton.accept(())
-            }
-            .disposed(by: dispodeBag)
-
-        viewModel.output.isValidateObservable
-            .subscribe(onNext: { [weak self] isValidate in
-                guard let strongSelf = self else { return }
-                strongSelf.loginButton.isHidden = !isValidate
+            .subscribe(onNext: { [weak self] in
+                self?.viewModel.tappedLoginButton()
             })
-            .disposed(by: dispodeBag)
+            .disposed(by: disposeBag)
 
-        viewModel.output.showAlertObservable
-            .subscribe(onNext: { [weak self] message in
-                guard let strongSelf = self else { return }
-                strongSelf.loginStatusLabel.text = message
-            })
-            .disposed(by: dispodeBag)
     }
 }
 
