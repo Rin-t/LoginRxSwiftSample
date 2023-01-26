@@ -40,7 +40,7 @@ final class ViewModel {
     private let disposeBag = DisposeBag()
 
     init(input: Input) {
-        setupBindings(input: Input)
+        setupBindings(input: input)
     }
 
     func setupBindings(input: Input) {
